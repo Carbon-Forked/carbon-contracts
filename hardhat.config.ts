@@ -204,6 +204,24 @@ const config: HardhatUserConfig = {
                 }
             }
         },
+        [DeploymentNetwork.HederaTestnet]: {
+            chainId: chainIds[DeploymentNetwork.HederaTestnet],
+            url: rpcUrls[DeploymentNetwork.HederaTestnet],
+            accounts: process.env.HEDERA_DEPLOY_PRIVATE_KEY ? [`0x${process.env.HEDERA_DEPLOY_PRIVATE_KEY}`] : [],
+            gasPrice,
+            saveDeployments: true,
+            live: true,
+            deploy: [`deploy/scripts/${DeploymentNetwork.HederaTestnet}`]
+        },
+        [DeploymentNetwork.HederaLocalnet]: {
+            chainId: chainIds[DeploymentNetwork.HederaLocalnet],
+            url: rpcUrls[DeploymentNetwork.HederaLocalnet],
+            accounts: process.env.HEDERA_DEPLOY_PRIVATE_KEY ? [`0x${process.env.HEDERA_DEPLOY_PRIVATE_KEY}`] : [],
+            gasPrice,
+            saveDeployments: true,
+            live: true,
+            deploy: [`deploy/scripts/${DeploymentNetwork.HederaLocalnet}`]
+        },
         [DeploymentNetwork.ZkSync]: {
             chainId: chainIds[DeploymentNetwork.ZkSync],
             url: rpcUrls[DeploymentNetwork.ZkSync],
@@ -650,7 +668,7 @@ const config: HardhatUserConfig = {
                 settings: {
                     optimizer: {
                         enabled: true,
-                        runs: 2000
+                        runs: 200
                     },
                     metadata: {
                         bytecodeHash: 'none'
