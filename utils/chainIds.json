@@ -11,6 +11,8 @@
     "tac": 239,
     "fantom": 250,
     "hedera": 295,
+    "hedera-testnet": 296,
+    "hedera-localnet": 298,
     "zksync": 324,
     "pulsechain": 369,
     "astar": 592,

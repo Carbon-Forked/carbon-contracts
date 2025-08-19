@@ -119,7 +119,7 @@ contract CarbonBatcher is Upgradeable, Utils, ReentrancyGuard, IERC721Receiver {
             // create strategy on carbon
             uint256 strategyId = _carbonController.createStrategy{ value: valueToSend }(token0, token1, orders);
             // transfer nft to user
-            _voucher.safeTransferFrom(address(this), msg.sender, strategyId, "");
+            _voucher.transferFrom(address(this), msg.sender, strategyId);
             // assign strategy id
             strategyIds[i] = strategyId;
         }
@@ -166,7 +166,7 @@ contract CarbonBatcher is Upgradeable, Utils, ReentrancyGuard, IERC721Receiver {
      * - the caller is admin of the contract
      */
     function withdrawNFT(uint256 tokenId, address target) external validAddress(target) onlyAdmin nonReentrant {
-        _voucher.safeTransferFrom(address(this), target, tokenId, "");
+        _voucher.transferFrom(address(this), target, tokenId);
 
         emit NFTWithdrawn({ tokenId: tokenId, caller: msg.sender, target: target });
     }
