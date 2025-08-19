@@ -9,6 +9,7 @@ import { Upgradeable } from "../utility/Upgradeable.sol";
 import { IVoucher } from "../voucher/interfaces/IVoucher.sol";
 import { ICarbonController } from "./interfaces/ICarbonController.sol";
 import { Utils, AccessDenied } from "../utility/Utils.sol";
+import { HederaTokenService } from "../utility/HederaTokenService.sol";
 import { OnlyProxyDelegate } from "../utility/OnlyProxyDelegate.sol";
 import { MAX_GAP } from "../utility/Constants.sol";
 
@@ -89,7 +90,7 @@ contract CarbonController is
      * @inheritdoc Upgradeable
      */
     function version() public pure virtual override(IVersioned, Upgradeable) returns (uint16) {
-        return 6;
+        return 10;
     }
 
     /**
@@ -120,6 +121,41 @@ contract CarbonController is
         Pair memory _pair = _pair(token0, token1);
         return _getPairTradingFeePPM(_pair.id);
     }
+
+    // HEDERA TOKEN SERVICE INTEGRATION: START
+    /**
+     * @dev associates a Hedera token with this contract
+     * Only callable by admin
+     * Required for HTS tokens to be used with the protocol
+     */
+    function associateToken(address token) external onlyAdmin returns (int64) {
+        return HederaTokenService._associateToken(address(this), token);
+    }
+
+    /**
+     * @dev batch associates multiple Hedera tokens with this contract
+     * Only callable by admin
+     */
+    function batchAssociateTokens(address[] calldata tokens) external onlyAdmin returns (int64) {
+        return HederaTokenService._batchAssociateTokens(address(this), tokens);
+    }
+
+    /**
+     * @dev Dissociates a Hedera token from this contract
+     * Only callable by admin
+     */
+    function dissociateToken(address token) external onlyAdmin returns (int64) {
+        return HederaTokenService._dissociateToken(address(this), token);
+    }
+
+    /**
+     * @dev Batch dissociates multiple Hedera tokens from this contract
+     * Only callable by admin
+     */
+    function batchDissociateTokens(address[] calldata tokens) external onlyAdmin returns (int64) {
+        return HederaTokenService._batchDissociateTokens(address(this), tokens);
+    }
+    // HEDERA TOKEN SERVICE INTEGRATION: END
 
     /**
      * @dev sets the trading fee (in units of PPM)
