@@ -90,7 +90,7 @@ contract CarbonController is
      * @inheritdoc Upgradeable
      */
     function version() public pure virtual override(IVersioned, Upgradeable) returns (uint16) {
-        return 10;
+        return 6;
     }
 
     /**
