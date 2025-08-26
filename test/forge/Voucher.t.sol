@@ -153,7 +153,7 @@ contract VoucherTest is TestFixture {
         voucher.safeMintTest(user1, 0);
         assertEq(voucher.balanceOf(user1), 1);
 
-        voucher.safeTransferFrom(user1, user2, 0);
+        voucher.transferFrom(user1, user2, 0);
 
         assertEq(voucher.balanceOf(user1), 0);
         assertEq(voucher.balanceOf(user2), 1);
@@ -165,7 +165,7 @@ contract VoucherTest is TestFixture {
         voucher.safeMintTest(user1, 0);
         assertEq(voucher.balanceOf(user1), 1);
 
-        voucher.safeTransferFrom(user1, user1, 0);
+        voucher.transferFrom(user1, user1, 0);
 
         assertEq(voucher.balanceOf(user1), 1);
         assertEq(voucher.balanceOf(user2), 0);

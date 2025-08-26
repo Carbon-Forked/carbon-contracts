@@ -293,16 +293,22 @@ const VortexNamedAccounts = {
     targetToken: {
         ...getAddress(mainnet, NATIVE_TOKEN_ADDRESS),
         ...getAddress(coti, '0x639aCc80569c5FC83c6FBf2319A6Cc38bBfe26d1'), // weth
-        ...getAddress(tac, NATIVE_TOKEN_ADDRESS) // tac
+        ...getAddress(tac, NATIVE_TOKEN_ADDRESS), // tac
+        [DeploymentNetwork.HederaTestnet]: NATIVE_TOKEN_ADDRESS,
+        [DeploymentNetwork.HederaLocalnet]: NATIVE_TOKEN_ADDRESS
     },
     finalTargetToken: {
         ...getAddress(mainnet, '0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C'),
-        ...getAddress(tac, '0x61D66bC21fED820938021B06e9b2291f3FB91945') // weth
+        ...getAddress(tac, '0x61D66bC21fED820938021B06e9b2291f3FB91945'), // weth
+        [DeploymentNetwork.HederaTestnet]: ZERO_ADDRESS,
+        [DeploymentNetwork.HederaLocalnet]: ZERO_ADDRESS
     },
     transferAddress: {
         ...getAddress(mainnet, '0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C'),
         ...getAddress(coti, ZERO_ADDRESS),
-        ...getAddress(tac, ZERO_ADDRESS)
+        ...getAddress(tac, ZERO_ADDRESS),
+        [DeploymentNetwork.HederaTestnet]: '0x5bEBA4D3533a963Dedb270a95ae5f7752fA0Fe22', // Using deployer address as transfer address
+        [DeploymentNetwork.HederaLocalnet]: '0x3A73e0A0DB0e9379b0bc2ce7450336a78bBf35E7' // Using deployer address as transfer address
     }
 };
 

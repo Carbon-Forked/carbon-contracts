@@ -49,7 +49,9 @@ export enum TestnetNetwork {
     Sepolia = 'sepolia',
     TacTestnet = 'tac-testnet',
     Tenderly = 'tenderly',
-    TenderlyTestnet = 'tenderly-testnet'
+    TenderlyTestnet = 'tenderly-testnet',
+    HederaTestnet = 'hedera-testnet',
+    HederaLocalnet = 'hedera-localnet'
 }
 
 export const DeploymentNetwork = {
