@@ -122,41 +122,6 @@ contract CarbonController is
         return _getPairTradingFeePPM(_pair.id);
     }
 
-    // HEDERA TOKEN SERVICE INTEGRATION: START
-    /**
-     * @dev associates a Hedera token with this contract
-     * Only callable by admin
-     * Required for HTS tokens to be used with the protocol
-     */
-    function associateToken(address token) external onlyAdmin returns (int64) {
-        return HederaTokenService._associateToken(address(this), token);
-    }
-
-    /**
-     * @dev batch associates multiple Hedera tokens with this contract
-     * Only callable by admin
-     */
-    function batchAssociateTokens(address[] calldata tokens) external onlyAdmin returns (int64) {
-        return HederaTokenService._batchAssociateTokens(address(this), tokens);
-    }
-
-    /**
-     * @dev Dissociates a Hedera token from this contract
-     * Only callable by admin
-     */
-    function dissociateToken(address token) external onlyAdmin returns (int64) {
-        return HederaTokenService._dissociateToken(address(this), token);
-    }
-
-    /**
-     * @dev Batch dissociates multiple Hedera tokens from this contract
-     * Only callable by admin
-     */
-    function batchDissociateTokens(address[] calldata tokens) external onlyAdmin returns (int64) {
-        return HederaTokenService._batchDissociateTokens(address(this), tokens);
-    }
-    // HEDERA TOKEN SERVICE INTEGRATION: END
-
     /**
      * @dev sets the trading fee (in units of PPM)
      *
@@ -235,7 +200,13 @@ contract CarbonController is
             strategyPair = _pair(token0, token1);
         }
 
+        // make sure the controller is associated with HTS tokens
         Token[2] memory tokens = [token0, token1];
+        for (uint256 i = 0; i < 2; i = uncheckedInc(i)) {
+            if (HederaTokenService.isHTSToken(tokens[i])) {
+                HederaTokenService.safeAssociateToken(address(this), Token.unwrap(tokens[i]));
+            }
+        }
         return _createStrategy(_voucher, tokens, orders, strategyPair, msg.sender, msg.value);
     }
 
