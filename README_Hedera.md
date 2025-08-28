@@ -12,6 +12,36 @@ You will also need to create and update the `.env` file if you’d like to deplo
 
 Fill your deloy wallet private key for variable `HEDERA_DEPLOY_PRIVATE_KEY` before running deploy script. Remember faucet some HBAR testnet for wallet here: https://portal.hedera.com/faucet
 
+#### Install forge for testing
+```sh
+# Install foundryup
+curl -L https://foundry.paradigm.xyz | bash
+
+# Install nightly dependencies
+foundryup --install nightly-56dbd20c7179570c53b6c17ff34daa7273a4ddae
+foundryup --use nightly-56dbd20c7179570c53b6c17ff34daa7273a4ddae
+```
+
+## Testing
+
+Testing the protocol is possible via multiple approaches:
+
+### Unit Tests
+
+You can run the full test suite via:
+
+```sh
+pnpm test
+```
+
+#### Instructions
+
+In order to audit the test coverage of the full test suite, run:
+
+```sh
+pnpm test:coverage
+```
+
 ## Deployments
 
 You can deploy the fully configured Carbon protocol on any network by setting up the `HARDHAT_NETWORK` environmental variable in .env and running:

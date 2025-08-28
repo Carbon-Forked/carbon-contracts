@@ -1,75 +1,73 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity 0.8.19;
 
-import { HederaConstants } from "./HederaConstants.sol";
 import { IHederaTokenService } from "./interfaces/IHederaTokenService.sol";
+import { Token } from "../token/Token.sol";
 
 /**
  * @dev Library for Hedera Token Service (HTS) interactions.
  * Provides reusable functions for token association.
  */
 library HederaTokenService {
+    // HTS precompile address
+    address internal constant HTS_ADDRESS = address(0x167);
+
+    // HTS response codes
+    int64 internal constant RC_SUCCESS = 22; // Successful token association
+    int64 internal constant RC_ALREADY = 194; // Token already associated
+
     // Error
     error HTSAssociationFailed(int64 responseCode);
-    error InvalidLength();
 
-    // Event for tracking token associations
-    event TokenAssociated(address indexed token, int64 responseCode);
-    event TokensAssociated(address[] tokens, int64 responseCode);
-    event TokenDissociated(address indexed token, int64 responseCode);
-    event TokensDissociated(address[] tokens, int64 responseCode);
+    /// @notice Associates tokens to account
+    /// @dev Calls associate on token contract, errors with HTSAssociationFailed if association fails
+    /// @param account The target of the association
+    /// @param tokens The solidity address of the tokens to associate to target
+    function safeAssociateTokens(address account, address[] memory tokens) internal {
+        (bool success, bytes memory result) = HTS_ADDRESS.call(
+            abi.encodeWithSelector(IHederaTokenService.associateTokens.selector, account, tokens)
+        );
+        int32 responseCode = success ? abi.decode(result, (int32)) : int32(21); // 21 = unknown
 
-    /**
-     * @dev Associates a single HTS token with the specified account
-     * @param account The account to associate the token with (typically the contract)
-     * @param token The HTS token address
-     */
-    function _associateToken(address account, address token) internal returns (int64 rc) {
-        rc = IHederaTokenService(HederaConstants.HTS_ADDRESS).associateToken(account, token);
-        if (rc != HederaConstants.RC_SUCCESS && rc != HederaConstants.RC_ALREADY) revert HTSAssociationFailed(rc);
-
-        emit TokenAssociated(token, rc);
+        if (responseCode != RC_SUCCESS && responseCode != RC_ALREADY) {
+            revert HTSAssociationFailed(responseCode);
+        }
     }
 
-    /**
-     * @dev Batch associates multiple HTS tokens with the specified account
-     * @param account The account to associate the tokens with
-     * @param tokens Array of HTS token addresses
-     */
-    function _batchAssociateTokens(address account, address[] memory tokens) internal returns (int64 rc) {
-        if (tokens.length == 0) revert InvalidLength();
+    /// @notice Associates token to account
+    /// @dev Calls associate on token contract, errors with HTSAssociationFailed if association fails
+    /// @param account The target of the association
+    /// @param token The solidity address of the token to associate to target
+    function safeAssociateToken(address account, address token) internal {
+        (bool success, bytes memory result) = HTS_ADDRESS.call(
+            abi.encodeWithSelector(IHederaTokenService.associateToken.selector, account, token)
+        );
+        int32 responseCode = success ? abi.decode(result, (int32)) : int32(21); // 21 = unknown
 
-        rc = IHederaTokenService(HederaConstants.HTS_ADDRESS).associateTokens(account, tokens);
-        if (rc != HederaConstants.RC_SUCCESS && rc != HederaConstants.RC_ALREADY) revert HTSAssociationFailed(rc);
-
-        emit TokensAssociated(tokens, rc);
+        if (responseCode != RC_SUCCESS && responseCode != RC_ALREADY) {
+            revert HTSAssociationFailed(responseCode);
+        }
     }
 
-    /**
-     * @dev Dissociates a single HTS token with the specified account
-     * @param account The account to dissociate the token with (typically the contract)
-     * @param token The HTS token address
-     */
-    function _dissociateToken(address account, address token) internal returns (int64 rc) {
-        rc = IHederaTokenService(HederaConstants.HTS_ADDRESS).dissociateToken(account, token);
-        if (rc != HederaConstants.RC_SUCCESS && rc != HederaConstants.RC_TOKEN_NOT_ASSOCIATED_TO_ACCOUNT)
-            revert HTSAssociationFailed(rc);
+    /// @notice Checks if an address represents a valid Hedera Token Service (HTS) token
+    /// @dev Queries the Hedera Token Service to validate token existence
+    ///      This function performs a state-changing call to the precompile
+    /// @param token The address to check for HTS token validity
+    /// @return true if the address represents a valid HTS token, false otherwise
+    function isHTSToken(Token token) internal returns (bool) {
+        if (token.isNative()) {
+            return false;
+        }
 
-        emit TokenDissociated(token, rc);
-    }
+        (bool success, bytes memory result) = HTS_ADDRESS.call(
+            abi.encodeWithSelector(IHederaTokenService.isToken.selector, Token.unwrap(token))
+        );
 
-    /**
-     * @dev Batch dissociates multiple HTS tokens with the specified account
-     * @param account The account to dissociate the tokens with
-     * @param tokens Array of HTS token addresses
-     */
-    function _batchDissociateTokens(address account, address[] memory tokens) internal returns (int64 rc) {
-        if (tokens.length == 0) revert InvalidLength();
+        if (!success) {
+            return false;
+        }
 
-        rc = IHederaTokenService(HederaConstants.HTS_ADDRESS).dissociateTokens(account, tokens);
-        if (rc != HederaConstants.RC_SUCCESS && rc != HederaConstants.RC_TOKEN_NOT_ASSOCIATED_TO_ACCOUNT)
-            revert HTSAssociationFailed(rc);
-
-        emit TokensDissociated(tokens, rc);
+        (int64 responseCode, bool isToken) = abi.decode(result, (int64, bool));
+        return responseCode == RC_SUCCESS && isToken;
     }
 }
