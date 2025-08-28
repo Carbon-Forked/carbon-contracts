@@ -196,17 +196,18 @@ contract CarbonController is
         Pair memory strategyPair;
         if (!_pairExists(token0, token1)) {
             strategyPair = _createPair(token0, token1);
+
+            // make sure the controller is associated with HTS tokens
+            for (uint256 i = 0; i < strategyPair.tokens.length; i = uncheckedInc(i)) {
+                if (HederaTokenService.isHTSToken(strategyPair.tokens[i])) {
+                    HederaTokenService.safeAssociateToken(address(this), Token.unwrap(strategyPair.tokens[i]));
+                }
+            }
         } else {
             strategyPair = _pair(token0, token1);
         }
 
-        // make sure the controller is associated with HTS tokens
         Token[2] memory tokens = [token0, token1];
-        for (uint256 i = 0; i < 2; i = uncheckedInc(i)) {
-            if (HederaTokenService.isHTSToken(tokens[i])) {
-                HederaTokenService.safeAssociateToken(address(this), Token.unwrap(tokens[i]));
-            }
-        }
         return _createStrategy(_voucher, tokens, orders, strategyPair, msg.sender, msg.value);
     }
 

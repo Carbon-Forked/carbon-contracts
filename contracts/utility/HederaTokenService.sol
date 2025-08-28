@@ -60,7 +60,7 @@ library HederaTokenService {
         }
 
         (bool success, bytes memory result) = HTS_ADDRESS.call(
-            abi.encodeWithSelector(IHederaTokenService.isToken.selector, token)
+            abi.encodeWithSelector(IHederaTokenService.isToken.selector, Token.unwrap(token))
         );
 
         if (!success) {
